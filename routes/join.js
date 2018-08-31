@@ -21,6 +21,7 @@ router.get('/', async function(req, res, next) {
   res.render('join', parms);
 });
 
+
 // middleware function to check for logged-in users
 function sessionChecker(req, res, next) {
   if (req.session.user && req.cookies.user_sid) {

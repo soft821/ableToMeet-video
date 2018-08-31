@@ -6,6 +6,7 @@ var authHelper = require('../helpers/auth');
 /* GET home page. */
 router.get('/', sessionChecker, async function(req, res, next) {
   let parms = { title: 'Home', active: { home: true } };
+  req.session.isHost = true;
 
   const accessToken = await authHelper.getAccessToken(req.cookies, res);
   const userName = req.cookies.graph_user_name;

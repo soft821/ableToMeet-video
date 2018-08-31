@@ -1,0 +1,3 @@
+psql -c 'CREATE ROLE "postgres" with Login Superuser Createrole CreateDB Replication BypassRLS'
+psql -c 'CREATE DATABASE "postgres"'
+psql -U postgres -c 'CREATE DATABASE "auth-system"'

@@ -30,6 +30,7 @@
 		<link rel="stylesheet" href="assets/css/owl.carousel.css">				
 		<link rel="stylesheet" href="assets/css/main.css">
 		<link rel="stylesheet" href="assets/css/custom.css">
+		<link rel="stylesheet" href="assets/plugins/Toastr-Plugin/build/toastr.css">
 	</head>
 	<body>	
 		<header id="header">
@@ -45,9 +46,9 @@
 			          <!-- <li><a href="pages/portfolio.html">Portfolio</a></li> -->
 			          <li class="menu-has-children"><a href="/host">Host A Meeting</a>
 			            <ul>
-			              <li><a href="/meeting/create/1347">With Video Off</a></li>
-			              <li><a href="/meeting/create/2468">With Video On</a></li>
-			              <li><a href="/meeting/create/3579">Screen Share Only</a></li>
+			              <li><a href="/host">With Video Off</a></li>
+			              <li><a href="/host">With Video On</a></li>
+			              <li><a href="/host">Screen Share Only</a></li>
 			            </ul>
 			          </li>
 			          {{#if currentUser}}
@@ -138,9 +139,15 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 		<script src="assets/js/waypoints.min.js"></script>
 		<script src="assets/js/jquery.counterup.min.js"></script>
 		<script src="assets/js/simple-skillbar.js"></script>							
-		<script src="assets/js/owl.carousel.min.js"></script>							
+		<script src="assets/js/owl.carousel.min.js"></script>
+		<script src="assets/plugins/Toastr-Plugin/build/toastr.min.js"></script>							
 		<script src="assets/js/mail-script.js"></script>	
 		<script src="assets/js/main.js"></script>
+		<script>
+			if(document.getElementById('errMsg') && document.getElementById('errMsg').value != ''){
+				toastr.error(document.getElementById('errMsg').value);
+			}
+		</script>
 		<!-- ./ Theme Javascript Plugins -->
 	</body>
 </html>

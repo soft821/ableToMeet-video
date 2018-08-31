@@ -6,6 +6,18 @@
 
 // ====================================================== //
 $(function(){
+	if ($('#isHost').attr('data-value') == "true") {
+		$('#open-room').click();
+		console.log('host');
+	} else {
+		$('#room-id').val($('#joinId').attr('data-value'));
+		console.log('joinid',$('#joinId').attr('data-value'));
+		console.log('roomid',$('#room-id').val());
+		$('#join-room').click();
+		console.log('join');
+	}
+		
+	
 	$('#joined-video-container').owlCarousel({
         items: 5,
         // loop: true,
@@ -37,15 +49,9 @@ $(function(){
 	    }
 	    e.preventDefault();
 	});
-	hideVideoControls();
-});
 
-function hideVideoControls(){
-	var vids = $("video"); 
-	$.each(vids, function(){
-	       this.controls = false; 
-	})
-}
+
+});
 
 // Toggle Chat Area
 $(document).on('click', '#btn-chat', function(){
@@ -95,7 +101,14 @@ $(document).on('click', '#btn-vstop', function(){
 	}
 });
 
-
+$(document).on('click', '#btn-share', function(){
+	console.log('sharebtn');
+	// this.disabled = true;
+    connection.addStream({
+        screen: true,
+        oneway: true
+    });
+});
 
 
 
@@ -158,12 +171,22 @@ function sendMsg(){
 }
 var chatContainer = document.querySelector('.chat-output');
 function appendOutMsg(event) {
+	console.log('msg',event);
 	var msg = event.data || event;
-	var user_name = 'hobi';
+
+	if (typeof(event) == "string") {
+		var user_name = document.getElementById('current_user').outerText;
+		var createdAt = (new Date).toLocaleDateString() + ' at ' + (new Date).toLocaleTimeString();
+	} else {
+		var user_name = event.extra.username;
+		var createdAt = event.extra.createdAt;
+	}
+		
 	var OutMsg = '<div class="out-msg">'+
 					'<div class="user-info">'+
 						'<img src="images/icons/default-user.png" class="user-avatar" />'+
-						'<span class="user-name">'+ user_name +'</span>'+
+						// '<span class="user-name">'+ user_name +'</span>'+
+						'<span class="timestamp">'+ createdAt +'</span>'+
 					'</div>'+
 					'<div class="msg">'+
 						msg +
@@ -173,6 +196,7 @@ function appendOutMsg(event) {
 					'<div class="user-info">'+
 						'<img src="images/icons/default-user.png" class="user-avatar" />'+
 						'<span class="user-name">'+ user_name +'</span>'+
+						'<span class="timestamp">'+ createdAt +'</span>'+
 					'</div>'+
 					'<div class="msg">'+
 						msg +
@@ -218,21 +242,89 @@ connection.sdpConstraints.mandatory = {
     OfferToReceiveAudio: true,
     OfferToReceiveVideo: true
 };
+
+// Using getScreenId.js to capture screen from any domain
+// You do NOT need to deploy Chrome Extension YOUR-Self!!
+connection.getScreenConstraints = function(callback) {
+    getScreenConstraints(function(error, screen_constraints) {
+        if (!error) {
+        	console.log('getScreen');
+            screen_constraints = connection.modifyScreenConstraints(screen_constraints);
+            callback(error, screen_constraints);
+            return;
+        }
+        throw error;
+    });
+};
+
+
 connection.onstream = function(event) {
 	console.log('11', event);
 	console.log('22', event.mediaElement);
     // document.body.appendChild(event.mediaElement);
+	// Hide Loading / Logo Images
 	$('#loading').addClass('hidden');
 	$('#cover-img').addClass('hidden');
+	// Add Video Stream into Video Container
+	event.mediaElement.controls = false;
+	var mediaElement = '<div class="media-element">'+
+							'<div class="media-box '+ event.streamid +'"></div>'+
+							'<div class="media-controls row">'+
+								'<div class="media-username col-md-8">'+ event.extra.username +'</div>'+
+								'<div class="control-fullscreen col-md-4"><img class="pull-right" data-id="'+ event.streamid +'" src="images/icons/full-screen-white.png" /></div>'+
+							'</div>'+
+						'</div>';
+
+
     if ($('#video-me video').length == 0) {
-    	$('#video-me').append(event.mediaElement);
+    	$('#video-me').append(mediaElement);
+    	document.getElementsByClassName(event.streamid)[0].appendChild(event.mediaElement);
     } else if ($('#video-focus video').length == 0) {
-		$('#video-focus').append(event.mediaElement);
+		$('#video-focus').append(mediaElement);
+    	document.getElementsByClassName(event.streamid)[0].appendChild(event.mediaElement);
+    	toastr.success(event.extra.username + ' has joined.');
     } else {
-    	$('#joined-video-container').trigger('add.owl.carousel', [event.mediaElement]).trigger('refresh.owl.carousel');
+		if(document.getElementById(event.streamid)) {
+	        var existing = document.getElementById(event.streamid);
+	        existing.parentNode.parentNode.parentNode.parentNode.removeChild(existing);
+	    }
+
+    	$('#joined-video-container').trigger('add.owl.carousel', [mediaElement]).trigger('refresh.owl.carousel');
+    	document.getElementsByClassName(event.streamid)[0].appendChild(event.mediaElement);
+    	if (document.getElementsByClassName(event.streamid)[0].childNodes.length > 1) {
+
+    	}
+    	toastr.success(event.extra.username + ' has joined.');
+    	console.log('owl');
     }
     console.log('ok');
 };
+// when stream ended
+connection.onstreamended = function(event) {
+	console.log('streamend', event);
+	console.log('parentNode', document.getElementById(event.streamid).parentNode.parentNode.parentNode);
+	// getElementsByClassName(event.streamid)[0].
+    if (document.getElementById(event.streamid).parentNode.parentNode.parentNode.id == 'video-focus') {
+    	$('#video-focus .media-element').remove();
+    	console.log('end1');
+    } else {
+    	document.getElementById(event.streamid).parentNode.parentNode.parentNode.className = 'owl-item ended';
+    	var endedIndex = $('.owl-item.ended').index();
+    	console.log(endedIndex);
+    	$(".owl-carousel").trigger('remove.owl.carousel', [endedIndex]).trigger('refresh.owl.carousel');
+    }
+    toastr.error(event.extra.username + ' has gone out.');
+
+    // var mediaElement = document.getElementById(event.streamid);
+    // if(mediaElement) {
+    //     mediaElement.parentNode.removeChild(mediaElement);
+    // }
+};
+
+connection.extra = {
+	username: document.getElementById('current_user').outerText,
+	createdAt: (new Date).toLocaleDateString() + ' at ' + (new Date).toLocaleTimeString()
+}
 // connection.onmessage = appendDIV;
 connection.onmessage = appendOutMsg;
 connection.filesContainer = document.getElementById('file-container');
@@ -242,14 +334,60 @@ connection.onopen = function() {
 };
 
 $(document).on('click', '.owl-item', function(e){
-	var focusObj = $('#video-focus video');
-	var carousel = $('.owl-carousel').data('owl.carousel');
+	var focusVideo = $('#video-focus video')[0];
+	var focusMediaElement = '<div class="media-element">'+
+							'<div class="media-box '+ focusVideo.id +'"></div>'+
+							'<div class="media-controls row">'+
+								'<div class="media-username col-md-8">'+ focusVideo.parentNode.parentNode.childNodes[1].childNodes[0].outerText +'</div>'+
+								'<div class="control-fullscreen col-md-4"><img class="pull-right" data-id="'+ focusVideo.id +'" src="images/icons/full-screen-white.png" /></div>'+
+							'</div>'+
+						'</div>';
+
+
+	// var focusObj = $('#video-focus .media-element');
+
 	var indexToRemove = $(this).index();
+	var selectedVideo = $('.owl-carousel video')[indexToRemove];
+// debugger;
+	var selectedMediaElement = '<div class="media-element">'+
+							'<div class="media-box '+ selectedVideo.id +'"></div>'+
+							'<div class="media-controls row">'+
+								'<div class="media-username col-md-8">'+ selectedVideo.parentNode.parentNode.childNodes[1].childNodes[0].outerText +'</div>'+
+								'<div class="control-fullscreen col-md-4"><img class="pull-right" data-id="'+ selectedVideo.id +'" src="images/icons/full-screen-white.png" /></div>'+
+							'</div>'+
+						'</div>';
+
+
 	console.log('indexToRemove',indexToRemove);
-	$('#video-focus').html($('.owl-carousel video')[indexToRemove]);
+	$('#video-focus').html(selectedMediaElement);
+	document.getElementsByClassName(selectedVideo.id)[0].appendChild(selectedVideo);
+	document.getElementById(selectedVideo.id).play();
 	e.preventDefault();
 	// carousel.to(carousel.relative($(this).index()));
+
+	// update owl-carousel
 	$(".owl-carousel").trigger('remove.owl.carousel', [indexToRemove]).trigger('refresh.owl.carousel');
-	$('#joined-video-container').trigger('add.owl.carousel', [focusObj]).trigger('refresh.owl.carousel');
+	$('#joined-video-container').trigger('add.owl.carousel', [focusMediaElement]).trigger('refresh.owl.carousel');
+	document.getElementsByClassName(focusVideo.id)[0].appendChild(focusVideo);
+	document.getElementById(focusVideo.id).play();
+
+
 	console.log('change');
 });
+
+$(document).on('dblclick', 'video', function(e){
+	goFullscreen(this.id);
+});
+
+$(document).on('click', '.control-fullscreen img', function(){
+	goFullscreen($(this).attr('data-id'));
+});
+
+function goFullscreen(id) {
+  var element = document.getElementById(id);       
+  if (element.mozRequestFullScreen) {
+    element.mozRequestFullScreen();
+  } else if (element.webkitRequestFullScreen) {
+    element.webkitRequestFullScreen();
+  }  
+}

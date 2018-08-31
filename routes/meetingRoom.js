@@ -18,7 +18,31 @@ router.get('/', sessionChecker, async function(req, res, next) {
     parms.signInUrl = authHelper.getAuthUrl();
     parms.debug = parms.signInUrl;
   }
+  parms.isHost = req.session.isHost;
+  parms.joinId = req.session.joinId || 0;
   parms.currentUser = req.session.user;
+  res.render('meetingRoom', parms);
+});
+
+router.post('/', sessionChecker, async function(req, res, next) {
+  let parms = { title: 'Home', active: { home: true }, layout: 'layout/video-room' };
+
+  req.session.isHost = false;
+  req.session.joinId = req.body.meetingId;
+
+  const accessToken = await authHelper.getAccessToken(req.cookies, res);
+  const userName = req.cookies.graph_user_name;
+
+  if (accessToken && userName) {
+    parms.user = userName;
+    parms.debug = `User: ${userName}\nAccess Token: ${accessToken}`;
+  } else {
+    parms.signInUrl = authHelper.getAuthUrl();
+    parms.debug = parms.signInUrl;
+  }
+  parms.currentUser = req.session.user;
+  parms.isHost = req.session.isHost;
+  parms.joinId = req.session.joinId;
   res.render('meetingRoom', parms);
 });
 

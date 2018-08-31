@@ -15,8 +15,11 @@
 
 	<!-- video container -->
 	<div id="video-container">
+		<div id="shared-screen-container"></div>
 		<div id="video-me"></div>
-		<div id="video-focus"></div>
+		<div id="video-focus">
+			
+		</div>
 	</div>
 	<div id="joined-video-container" class="owl-carousel owl-theme">
         
@@ -50,8 +53,8 @@
 <!-- ./main video room -->
 <!-- chat sidebar -->
 <div id="chat-room">
-	<div class="chat-header">
-		<input type="text" id="room-id" value="abcdef">
+	<div class="chat-header" style="visibility: hidden;">
+		<input type="text" id="room-id" value="{{currentUser.username}}">
 		<button id="open-room">Open Room</button>
 		<button id="join-room">Join Room</button>
 		<button id="open-or-join-room">Auto Open Or Join Room</button>
@@ -70,7 +73,7 @@
 	<!-- ./chat output field -->
 	<!-- chat input field -->
 	<div class="chat-form-group">
-		<button id="share-file"><i class="fa fa-file-image-o"></i></button>
+		<button id="share-file" style="visibility: hidden;" disabled><i class="fa fa-file-image-o"></i></button>
 	    <input type="text" id="input-text-chat" placeholder="Enter Text Chat" disabled>
 		<!-- <textarea id="input-text-chat"></textarea> -->
 		<button id="btn-send-chat"><i class="fa fa-send-o"></i></button>

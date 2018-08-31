@@ -17,6 +17,7 @@ var mail = require('./routes/mail');
 var calendar = require('./routes/calendar');
 var contacts = require('./routes/contacts');
 var video = require('./routes/video');
+var screenShare = require('./routes/screen-share');
 var meeting = require('./routes/meeting');
 var invite = require('./routes/invite');
 // -------- sunrise --------- //
@@ -52,7 +53,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        expires: 600000
+        expires: 1000 * 60 * 30
     }
 }));
 
@@ -62,6 +63,7 @@ app.use('/mail', mail);
 app.use('/calendar', calendar);
 app.use('/contacts', contacts);
 app.use('/video', video);
+app.use('/screen-share', screenShare);
 app.use('/meeting', meeting);
 app.use('/invite', invite);
 // ------- sunrise -------- //

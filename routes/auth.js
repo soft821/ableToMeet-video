@@ -6,6 +6,8 @@ var bcrypt = require('bcrypt');
 
 router.get('/signin', sessionChecker, async function(req, res, next) {
   let parms = { title: 'Home', active: { home: true } };
+  parms.errMsg = req.session.errMsg;
+  req.session.errMsg = null; // resets session variable
   res.render('signin', parms);
 });
 
@@ -17,8 +19,10 @@ router.post('/signin', async function(req, res, next) {
     User.findOne({ where: { email: email } }).then(function (user) {
         console.log(user);
         if (!user) {
+            req.session.errMsg = "User email not found!";
             res.redirect('/auth/signin');
         } else if (!bcrypt.compareSync(password, user.password)) {
+            req.session.errMsg = "Invalid passowrd!";
             res.redirect('/auth/signin');
         } else {
             req.session.user = user.dataValues;

@@ -35,14 +35,8 @@
 
 		<!-- Video Conferencing JS
 		============================================= -->
-		<!-- <script src="./dist/RTCMultiConnection.min.js"></script> -->
-
-        <!-- custom layout for HTML5 audio/video elements -->
-        <!-- <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script> -->
-        
         <!-- capture screen from any HTTPs domain! -->
         <script src="https://cdn.webrtc-experiment.com:443/getScreenId.js"></script>
-        <!-- ||||||||||||||||||||||||||||||||||||||||||||||||||||||||| -->
 
 		<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.js"></script>
 		<script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"></script>
@@ -51,7 +45,7 @@
 		<script src="./socket/socket.io.js"></script>
 		<!-- ==================================================================================== -->
 	</head>
-	<body class="meeting-room">	
+	<body class="meeting-room">
 		<div style="display: none;" id="current_user" data-value="{{currentUser.username}}">{{currentUser.username}}</div>
 		<div style="display: none;" id="isHost" data-value="{{isHost}}"></div>
 		<div style="display: none;" id="joinId" data-value="{{joinId}}"></div>
@@ -76,8 +70,6 @@
 		<script src="assets/js/main.js"></script>
 		<script src="assets/plugins/OwlCarousel2-2.3.4/src/js/owl.carousel.js"></script>							
 		<script src="assets/plugins/Toastr-Plugin/build/toastr.min.js"></script>
-		<!-- <script src="https://cdn.webrtc-experiment.com/Screen-Capturing.js"></script> -->
-		<!-- <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script> -->
 		<script src="pages/meetingRoom.js"></script>
 	</body>
 </html>

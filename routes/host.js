@@ -6,6 +6,7 @@ var router = express.Router();
 router.get('/', sessionChecker, async function(req, res, next) {
   let parms = { title: 'Home', active: { home: true } };
   req.session.isHost = true;
+  parms.currentUser = req.session.user;
   res.render('host', parms);
 });
 

@@ -239,7 +239,7 @@ connection.sdpConstraints.mandatory = {
 
 // set extra variable into socket's all stream
 connection.extra = {
-	username: document.getElementById('current_user').outerText,
+	username: document.getElementById('current_user').innerText,
 	createdAt: (new Date).toLocaleDateString() + ' at ' + (new Date).toLocaleTimeString()
 }
 

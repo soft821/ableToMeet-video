@@ -12,24 +12,13 @@ var bcrypt = require('bcrypt');
 require('dotenv').config();
 
 var index = require('./routes/index');
-var authorize = require('./routes/authorize');
-var mail = require('./routes/mail');
-var calendar = require('./routes/calendar');
-var contacts = require('./routes/contacts');
-var video = require('./routes/video');
-var screenShare = require('./routes/screen-share');
-var meeting = require('./routes/meeting');
-var invite = require('./routes/invite');
-// -------- sunrise --------- //
 var join = require('./routes/join');
 var host = require('./routes/host');
-var signin = require('./routes/signin');
-var signup = require('./routes/signup');
 var meetingRoom = require('./routes/meetingRoom');
-// ---------- end ----------- //
 var auth = require('./routes/auth');
 
 var app = express();
+
 // Set public folder as root
 app.use(express.static(path.join(__dirname, '/public')));
 
@@ -37,14 +26,11 @@ app.use(express.static(path.join(__dirname, '/public')));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view options', { layout : 'layout/main' });
 app.set('view engine', 'hbs');
-// app.get('/stylesheets/style.css', function(req, res){ res.send('stylesheets/style.css'); res.end(); });
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'public')));
 
 // initialize express-session to allow us track the logged-in user across sessions.
 app.use(session({
@@ -58,20 +44,10 @@ app.use(session({
 }));
 
 app.use('/', index);
-app.use('/authorize', authorize);
-app.use('/mail', mail);
-app.use('/calendar', calendar);
-app.use('/contacts', contacts);
-app.use('/video', video);
-app.use('/screen-share', screenShare);
-app.use('/meeting', meeting);
-app.use('/invite', invite);
-// ------- sunrise -------- //
 app.use('/auth', auth);
 app.use('/join', join);
 app.use('/host', host);
 app.use('/meetingRoom', meetingRoom);
-// --------- end ----------//
 
 // Provide access to node_modules folder
 app.use('/scripts', express.static(`${__dirname}/node_modules/`));

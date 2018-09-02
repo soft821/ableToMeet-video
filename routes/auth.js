@@ -33,10 +33,30 @@ router.post('/signin', async function(req, res, next) {
 
 router.get('/signup', sessionChecker, async function(req, res, next) {
   let parms = { title: 'Home', active: { home: true } };
+  parms.errMsg = req.session.errMsg;
+  req.session.errMsg = null; // resets session variable
   res.render('signup1', parms);
 });
 
 router.post('/signup', async function(req, res, next) {
+    var username = req.body.username;
+    var email = req.body.email;
+    var password = req.body.password;
+
+    User.findOne({ where: { email: email } }).then(function (user) {
+        if (user) {
+            req.session.errMsg = "This email is already taken!";
+            res.redirect('/auth/signup');
+        } 
+    });
+
+    User.findOne({ where: { username: username } }).then(function (user) {
+        if (user) {
+            req.session.errMsg = "This username is already taken!";
+            res.redirect('/auth/signup');
+        } 
+    });
+
     User.create({
             username: req.body.username,
             email: req.body.email,

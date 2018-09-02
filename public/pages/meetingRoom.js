@@ -225,7 +225,7 @@ $(document).on('click','#share-file',function(){
 // Web RTC connection part
 // ========================= //
 var connection = new RTCMultiConnection();
-connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+connection.socketURL = 'https://sleepy-tundra-93052.herokuapp.com/';
 connection.enableFileSharing = true; // by default, it is "false".
 connection.session = {
     audio: true,

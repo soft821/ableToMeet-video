@@ -532,5 +532,7 @@ canvas {
 		display: none;
 	}
 }
-
+video {
+	display: none;
+}
 /* ./Main Video Meeting Room */

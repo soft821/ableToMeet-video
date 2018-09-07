@@ -369,19 +369,22 @@ connection.onstream = function(event) {
     if ($('#video-me canvas').length == 0) {
     	$('#video-me').append(mediaElement);
     	document.getElementsByClassName(event.streamid)[0].appendChild(canvas);
+        document.getElementsByClassName(event.streamid)[0].appendChild(video);
     	setInterval(function() {
 	        texture.loadContentsOf(video);
 	        canvas.draw(texture).denoise(60).update();
 	    }, 10);
-	    video.play();
+	    // video.play();
     } else if ($('#video-focus canvas').length == 0) {
 		$('#video-focus').append(mediaElement);
     	document.getElementsByClassName(event.streamid)[0].appendChild(canvas);
+        document.getElementsByClassName(event.streamid)[0].appendChild(video);
+        
     	setInterval(function() {
 	        texture.loadContentsOf(video);
 	        canvas.draw(texture).denoise(60).update();
 	    }, 10);
-	    video.play();
+	    // video.play();
     } else {
         if(document.getElementsByClassName(event.streamid).length > 0) {
             var existing = document.getElementsByClassName(event.streamid);
@@ -393,7 +396,7 @@ connection.onstream = function(event) {
             texture.loadContentsOf(video);
             canvas.draw(texture).denoise(60).update();
             }, 10);
-            video.play();
+            // video.play();
         }
     }
 };

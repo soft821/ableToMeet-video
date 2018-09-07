@@ -2174,8 +2174,8 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
         }
 
         var mediaElement = document.createElement(isAudioOnly ? 'audio' : 'video');
-
         mediaElement.srcObject = stream;
+        console.log('mediaElement', mediaElement);
 
         try {
             mediaElement.setAttributeNode(document.createAttribute('autoplay'));

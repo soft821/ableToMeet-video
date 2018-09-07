@@ -6,7 +6,13 @@
 
 // ====================================================== //
 $(function(){
-	// auto host & join at first
+	try {
+        var canvas = fx.canvas();
+    } catch (e) {
+        alert(e);
+        return;
+    }
+
 	if ($('#isHost').attr('data-value') == "true") {
 		$('#cover-img').addClass('hidden');
 		$('#loading').removeClass('hidden');
@@ -126,7 +132,6 @@ $(document).on('click', '#btn-vstop', function(){
 
 // btn event for share screen in meeting room
 $(document).on('click', '#btn-share', function(){
-	console.log('sharebtn');
     connection.addStream({
         screen: true,
         oneway: true
@@ -135,43 +140,23 @@ $(document).on('click', '#btn-share', function(){
 
 // when click video item, focus processing
 $(document).on('click', '.owl-item', function(e){
-	var focusVideo = $('#video-focus video')[0];
-	if (focusVideo) {
-		var focusMediaElement = '<div class="media-element">'+
-								'<div class="media-box '+ focusVideo.id +'"></div>'+
-								'<div class="media-controls row">'+
-									'<div class="media-username col-md-8">'+ focusVideo.parentNode.parentNode.childNodes[1].childNodes[0].outerText +'</div>'+
-									'<div class="control-fullscreen col-md-4"><img class="pull-right" data-id="'+ focusVideo.id +'" src="images/icons/full-screen-white.png" /></div>'+
-								'</div>'+
-							'</div>';
-	}
+	var focusVideo = $('#video-focus .media-element')[0];
 
 	var indexToRemove = $(this).index();
-	var selectedVideo = $('.owl-carousel video')[indexToRemove];
-	var selectedMediaElement = '<div class="media-element">'+
-							'<div class="media-box '+ selectedVideo.id +'"></div>'+
-							'<div class="media-controls row">'+
-								'<div class="media-username col-md-8">'+ selectedVideo.parentNode.parentNode.childNodes[1].childNodes[0].outerText +'</div>'+
-								'<div class="control-fullscreen col-md-4"><img class="pull-right" data-id="'+ selectedVideo.id +'" src="images/icons/full-screen-white.png" /></div>'+
-							'</div>'+
-						'</div>';
+	var selectedVideo = $('.owl-carousel .media-element')[indexToRemove];
 
-	$('#video-focus').html(selectedMediaElement);
-	document.getElementsByClassName(selectedVideo.id)[0].appendChild(selectedVideo);
-	document.getElementById(selectedVideo.id).play();
+	$('#video-focus').html(selectedVideo);
 	e.preventDefault();
 	
 	// update owl-carousel
 	$(".owl-carousel").trigger('remove.owl.carousel', [indexToRemove]).trigger('refresh.owl.carousel');
 	if(focusVideo){
-		$('#joined-video-container').trigger('add.owl.carousel', [focusMediaElement]).trigger('refresh.owl.carousel');
-		document.getElementsByClassName(focusVideo.id)[0].appendChild(focusVideo);
-		document.getElementById(focusVideo.id).play();
+		$('#joined-video-container').trigger('add.owl.carousel', [focusVideo]).trigger('refresh.owl.carousel');
 	}
 });
 
 // when dbl click video, full screen
-$(document).on('dblclick', 'video', function(e){
+$(document).on('dblclick', 'canvas', function(e){
 	goFullscreen(this.id);
 });
 
@@ -190,6 +175,18 @@ function goFullscreen(id) {
   }  
 }
 
+function resize() {
+    // alert('sdaf');
+}
+function on_fullscreen_change() {
+    if (document.mozFullScreen || document.webkitIsFullScreen) {
+        resize();
+    }
+    else {
+    }
+}
+document.addEventListener('mozfullscreenchange', on_fullscreen_change);
+document.addEventListener('webkitfullscreenchange', on_fullscreen_change);
 // ==================================== //
 // Text Message Chat Part
 // ==================================== //
@@ -232,6 +229,96 @@ connection.session = {
     video: true,
     data : true
 };
+
+connection.bandwidth = {
+    audio: 50,  // 50 kbps
+    video: 256, // 256 kbps
+    screen: 300 // 300 kbps
+};
+
+// connection.mediaConstraints = {
+//     audio: true,
+//     video: {
+//         mandatory: {
+//             minWidth: 1280,
+//             maxWidth: 1280,
+//             minHeight: 720,
+//             maxHeight: 720,
+//             minFrameRate: 30,
+//             minAspectRatio: 1.77
+//         },
+//         optional: [{
+//             facingMode: 'user' // or "application"
+//         }]
+//     }
+// };
+
+if (DetectRTC.browser.name === 'Firefox') {
+    connection.mediaConstraints = {
+        audio: true,
+        video: {
+            width: 1280,
+            height: 720,
+            frameRate: 30,
+            aspectRatio: 1.77,
+            facingMode: 'user' // or "application"
+        }
+    };
+}
+
+connection.processSdp = function(sdp) {
+    return addVideoBandwidth(sdp);
+};
+
+function addVideoBandwidth(sdp) {
+    var sdpLines = sdp.split('\r\n');
+
+    var vp8Index = findLine(sdpLines, 'a=rtpmap', 'VP8/90000');
+    var vp8Payload;
+    if (vp8Index) {
+        vp8Payload = getCodecPayloadType(sdpLines[vp8Index]);
+    }
+
+    var rtxIndex = findLine(sdpLines, 'a=rtpmap', 'rtx/90000');
+    var rtxPayload;
+    if (rtxIndex) {
+        rtxPayload = getCodecPayloadType(sdpLines[rtxIndex]);
+    }
+
+    var rtxFmtpLineIndex = findLine(sdpLines, 'a=fmtp:' + rtxPayload.toString());
+    if (rtxFmtpLineIndex !== null) {
+        var appendrtxNext = '\r\n';
+        appendrtxNext += 'a=fmtp:' + vp8Payload + ' x-google-min-bitrate=228; x-google-max-bitrate=228';
+        sdpLines[rtxFmtpLineIndex] = sdpLines[rtxFmtpLineIndex].concat(appendrtxNext);
+        sdp = sdpLines.join('\r\n');
+    }
+
+    return sdp;
+}
+
+function findLine(sdpLines, prefix, substr) {
+    return findLineInRange(sdpLines, 0, -1, prefix, substr);
+}
+
+function findLineInRange(sdpLines, startLine, endLine, prefix, substr) {
+    var realEndLine = endLine !== -1 ? endLine : sdpLines.length;
+    for (var i = startLine; i < realEndLine; ++i) {
+        if (sdpLines[i].indexOf(prefix) === 0) {
+            if (!substr ||
+                sdpLines[i].toLowerCase().indexOf(substr.toLowerCase()) !== -1) {
+                return i;
+            }
+        }
+    }
+    return null;
+}
+
+function getCodecPayloadType(sdpLine) {
+    var pattern = new RegExp('a=rtpmap:(\\d+) \\w+\\/\\d+');
+    var result = sdpLine.match(pattern);
+    return (result && result.length === 2) ? result[1] : null;
+}
+
 connection.sdpConstraints.mandatory = {
     OfferToReceiveAudio: true,
     OfferToReceiveVideo: true
@@ -254,32 +341,60 @@ connection.onstream = function(event) {
 	// Hide Loading / Logo Images
 	$('#loading').addClass('hidden');
 	$('#cover-img').addClass('hidden');
+	try {
+        var canvas = fx.canvas();
+    } catch (e) {
+        alert(e);
+        return;
+    }
+    var video = event.mediaElement;
+    console.log('video', video);
+
+    var texture = canvas.texture(video);
+    canvas.setAttribute("id", event.streamid);
+
+    // document.body.appendChild(canvas);
+    
+
 	// Add Video Stream into Video Container
 	event.mediaElement.controls = false;
-	var mediaElement = '<div class="media-element">'+
-							'<div class="media-box '+ event.streamid +'"></div>'+
-							'<div class="media-controls row">'+
-								'<div class="media-username col-md-8 col-sm-8 col-xs-8">'+ event.extra.username +'</div>'+
-								'<div class="control-fullscreen col-md-4 col-sm-4 col-xs-4"><img class="pull-right" data-id="'+ event.streamid +'" src="images/icons/full-screen-white.png" /></div>'+
-							'</div>'+
-						'</div>';
+	var mediaElement = 	'<div class="media-element">'+
+								'<div class="media-box '+ event.streamid +'"></div>'+
+								'<div class="media-controls row">'+
+									'<div class="media-username col-md-8 col-sm-8 col-xs-8">'+ event.extra.username +'</div>'+
+									'<div class="control-fullscreen col-md-4 col-sm-4 col-xs-4"><img class="pull-right" data-id="'+ event.streamid +'" src="images/icons/full-screen-white.png" /></div>'+
+								'</div>'+
+							'</div>';
 
-    if ($('#video-me video').length == 0) {
+    if ($('#video-me canvas').length == 0) {
     	$('#video-me').append(mediaElement);
-    	document.getElementsByClassName(event.streamid)[0].appendChild(event.mediaElement);
-    } else if ($('#video-focus video').length == 0) {
+    	document.getElementsByClassName(event.streamid)[0].appendChild(canvas);
+    	setInterval(function() {
+	        texture.loadContentsOf(video);
+	        canvas.draw(texture).denoise(60).update();
+	    }, 10);
+	    video.play();
+    } else if ($('#video-focus canvas').length == 0) {
 		$('#video-focus').append(mediaElement);
-    	document.getElementsByClassName(event.streamid)[0].appendChild(event.mediaElement);
+    	document.getElementsByClassName(event.streamid)[0].appendChild(canvas);
+    	setInterval(function() {
+	        texture.loadContentsOf(video);
+	        canvas.draw(texture).denoise(60).update();
+	    }, 10);
+	    video.play();
     } else {
-		if(document.getElementById(event.streamid)) {
-	        var existing = document.getElementById(event.streamid);
-	        existing.parentNode.parentNode.parentNode.parentNode.removeChild(existing);
-	    }
-    	$('#joined-video-container').trigger('add.owl.carousel', [mediaElement]).trigger('refresh.owl.carousel');
-    	document.getElementsByClassName(event.streamid)[0].appendChild(event.mediaElement);
-    	if (document.getElementsByClassName(event.streamid)[0].childNodes.length > 1) {
-
-    	}
+        if(document.getElementsByClassName(event.streamid).length > 0) {
+            var existing = document.getElementsByClassName(event.streamid);
+            existing[0].firstChild.remove();
+        } else {
+            $('#joined-video-container').trigger('add.owl.carousel', [mediaElement]).trigger('refresh.owl.carousel');
+            document.getElementsByClassName(event.streamid)[0].appendChild(canvas);
+            setInterval(function() {
+            texture.loadContentsOf(video);
+            canvas.draw(texture).denoise(60).update();
+            }, 10);
+            video.play();
+        }
     }
 };
 

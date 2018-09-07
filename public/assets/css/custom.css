@@ -44,7 +44,7 @@
 	}
 }
 
-#joined-video-container video {
+#joined-video-container canvas {
 	max-height: 180px;
 }
 
@@ -219,7 +219,7 @@
 	right: 10px;
 }
 
-#video-me video {
+#video-me canvas {
 	border: solid 2px #ffffff;
 }
 
@@ -233,7 +233,7 @@
 	margin-top: 10px;
 }
 
-video {
+canvas {
 	object-fit: fill;
 	width: 100%;
 	height: 100%;

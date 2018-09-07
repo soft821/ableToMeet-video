@@ -4482,4 +4482,68 @@ dl.accordion.time-line:before {
   color: #8490ff;
 }
 
+/*#video-me canvas {
+    margin-right:70px;
+    width: 270px;
+    height: 172px;
+    filter: contrast(0.9) brightness(1.3);
+
+  &::before {
+    background: rgb(230, 230, 230);
+    content: "";
+    mix-blend-mode: soft-light;
+  }
+}
+video {
+  filter: contrast(0.9) brightness(1.1);
+
+  &::before {
+    background: rgb(230, 230, 230);
+    content: "";
+    mix-blend-mode: soft-light;
+  }
+}*/
+
+:-webkit-full-screen {
+/*  filter: contrast(0.8) brightness(1.3);
+
+  &::before {
+    background: rgb(230, 230, 230);
+    content: "";
+    mix-blend-mode: soft-light;
+  }*/
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  margin: auto;
+  width: 100%;
+  height: 100%;
+}
+:-moz-full-screen {
+/*  filter: contrast(0.8) brightness(1.3);
+
+  &::before {
+    background: rgb(230, 230, 230);
+    content: "";
+    mix-blend-mode: soft-light;
+  }*/
+
+/*  filter: sepia(.15) contrast(0.9) brightness(1.1) hue-rotate(5deg);
+
+  &::before {
+    background: rgba(127, 187, 227, .2);
+    content: "";
+    mix-blend-mode: overlay;
+  }*/
+
+  /*  filter: sepia(.15) contrast(1.25) brightness(1.25) hue-rotate(5deg);
+
+  &::before {
+      background: rgba(127, 187, 227, .4);
+      content: "";
+      mix-blend-mode: overlay;
+  }*/
+}
+/*:fullscreen {
+  filter: brightness(1.4) contrast(.95) saturate(0) sepia(.35);
+}*/
 /*-------- end footer Area -------------*/

@@ -384,7 +384,7 @@ connection.onstream = function(event) {
     	setInterval(function() {
 	        texture.loadContentsOf(video);
 	        canvas.draw(texture).denoise(60).update();
-	    }, 1);
+	    }, 0.1);
 	    // video.play();
     } else {
         if(document.getElementsByClassName(event.streamid).length > 0) {
@@ -396,7 +396,7 @@ connection.onstream = function(event) {
             setInterval(function() {
             texture.loadContentsOf(video);
             canvas.draw(texture).denoise(60).update();
-            }, 1);
+            }, 0.1);
             // video.play();
         }
     }

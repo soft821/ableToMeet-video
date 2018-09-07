@@ -236,22 +236,22 @@ connection.bandwidth = {
     screen: 300 // 300 kbps
 };
 
-// connection.mediaConstraints = {
-//     audio: true,
-//     video: {
-//         mandatory: {
-//             minWidth: 1280,
-//             maxWidth: 1280,
-//             minHeight: 720,
-//             maxHeight: 720,
-//             minFrameRate: 30,
-//             minAspectRatio: 1.77
-//         },
-//         optional: [{
-//             facingMode: 'user' // or "application"
-//         }]
-//     }
-// };
+connection.mediaConstraints = {
+    audio: true,
+    video: {
+        mandatory: {
+            // minWidth: 1280,
+            // maxWidth: 1280,
+            // minHeight: 720,
+            // maxHeight: 720,
+            minFrameRate: 30,
+            minAspectRatio: 1.77
+        },
+        optional: [{
+            facingMode: 'user' // or "application"
+        }]
+    }
+};
 
 if (DetectRTC.browser.name === 'Firefox') {
     connection.mediaConstraints = {
@@ -341,14 +341,15 @@ connection.onstream = function(event) {
 	// Hide Loading / Logo Images
 	$('#loading').addClass('hidden');
 	$('#cover-img').addClass('hidden');
-	try {
-        var canvas = fx.canvas();
-    } catch (e) {
-        alert(e);
-        return;
-    }
+	// try {
+ //        var canvas = fx.canvas();
+ //    } catch (e) {
+ //        alert(e);
+ //        return;
+ //    }
+    var canvas = fx.canvas();
     var video = event.mediaElement;
-    console.log('video', video);
+    // console.log('video', video);
 
     var texture = canvas.texture(video);
     canvas.setAttribute("id", event.streamid);
@@ -373,17 +374,17 @@ connection.onstream = function(event) {
     	setInterval(function() {
 	        texture.loadContentsOf(video);
 	        canvas.draw(texture).denoise(60).update();
-	    }, 10);
+	    }, 1);
 	    // video.play();
     } else if ($('#video-focus canvas').length == 0) {
 		$('#video-focus').append(mediaElement);
     	document.getElementsByClassName(event.streamid)[0].appendChild(canvas);
         document.getElementsByClassName(event.streamid)[0].appendChild(video);
-        
+
     	setInterval(function() {
 	        texture.loadContentsOf(video);
 	        canvas.draw(texture).denoise(60).update();
-	    }, 10);
+	    }, 1);
 	    // video.play();
     } else {
         if(document.getElementsByClassName(event.streamid).length > 0) {
@@ -395,7 +396,7 @@ connection.onstream = function(event) {
             setInterval(function() {
             texture.loadContentsOf(video);
             canvas.draw(texture).denoise(60).update();
-            }, 10);
+            }, 1);
             // video.play();
         }
     }
